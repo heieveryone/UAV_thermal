@@ -3,6 +3,8 @@ import numpy as np
 import cv2
 from vidgear.gears import CamGear
 from vidgear.gears import WriteGear
+import serial
+import threading
 
 from seekcamera import (
     SeekCameraIOType,
@@ -33,7 +35,7 @@ output_params = {
     "-f": "flv",
 }
 
-
+# [WARNING] Change your YouTube-Live Stream Key here:
 YOUTUBE_STREAM_KEY = "rbv8-rr9z-tydm-wwyc-864t"
 
 # Define writer with defined parameters
@@ -43,8 +45,20 @@ writer = WriteGear(
     **output_params
 )
 
-# [WARNING] Change your YouTube-Live Stream Key here:
-YOUTUBE_STREAM_KEY = "rbv8-rr9z-tydm-wwyc-864t"
+
+
+ser = serial.Serial('COM4', 115200, timeout= 1)
+
+position = (700, 150)
+
+font = cv2.FONT_HERSHEY_SIMPLEX
+
+# 设置字体的大小和颜色
+font_scale = 1
+color = (0, 255, 0)
+
+# 设置字体的粗细
+thickness = 2
 
 
 class Renderer:
@@ -137,6 +151,24 @@ def on_event(camera, event_type, event_status, renderer):
     elif event_type == SeekCameraManagerEvent.READY_TO_PAIR:
         return
 
+def NEODO():
+    global NEO_data
+    while True:
+        hex_data = "ac350002013ef9a3"
+        byte_data = bytes.fromhex(hex_data)
+        # print('send command', byte_data)
+        ser.write(byte_data)
+        # time.sleep(0.01)
+        response = ser.readline()
+        # print('responses:', response)
+        last_three_bytes = response[-8:-3]
+        # print('measure data:', last_three_bytes)
+        NEO_data = last_three_bytes.decode('utf-8', errors='ignore')
+        # time.sleep(0.01)
+
+
+
+
 #out = cv2.VideoWriter(output_filename, fourcc, 20, (1280, 960))
 def main():
     # Create a context structure responsible for managing all connected USB cameras.
@@ -147,6 +179,17 @@ def main():
         renderer = Renderer()
         manager.register_event_callback(on_event, renderer)
 
+        hex_data_cheak = "ac350002001dde93"
+        byte_data_cheak = bytes.fromhex(hex_data_cheak)
+        print('send command_cheak', byte_data_cheak)
+        ser.write(byte_data_cheak)
+        #start_device
+        hex_data_start = "ac350003001e02cca2"
+        byte_data_start = bytes.fromhex(hex_data_start)
+        print('send command_start', byte_data_start)
+        ser.write(byte_data_start)
+        thread1 = threading.Thread(target=NEODO)
+        thread1.start()
         while True:
             # Wait a maximum of 150ms for each frame to be received.
             # A condition variable is used to synchronize the access to the renderer;
@@ -174,6 +217,7 @@ def main():
                     thermal_cam = cv2.copyMakeBorder(thermal_cam, 100, 100, 0, 0, cv2.BORDER_CONSTANT, value=(0, 0, 0))
                     webcam_bgra = cv2.cvtColor(webcam,cv2.COLOR_BGR2BGRA)
                     merged_frame = np.hstack((webcam_bgra,thermal_cam))
+                    cv2.putText(merged_frame, f"NEO sensor: {NEO_data} ppm", position, font, font_scale, color, thickness)
                     cv2.imshow('Video1',merged_frame)
                     #cv2.imshow("video1", webcam)
                     #cv2.imshow("video2", thermal_cam)
@@ -188,6 +232,5 @@ def main():
             #cap1.release()
             #out.release()
             #cv2.destoryAllWindows()
-
 if __name__ == "__main__":
     main()
