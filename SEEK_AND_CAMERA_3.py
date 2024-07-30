@@ -54,7 +54,7 @@ position = (700, 150)
 font = cv2.FONT_HERSHEY_SIMPLEX
 
 # 设置字体的大小和颜色
-font_scale = 1
+font_scale = 2
 color = (0, 255, 0)
 
 # 设置字体的粗细
@@ -217,7 +217,7 @@ def main():
                     thermal_cam = cv2.copyMakeBorder(thermal_cam, 100, 100, 0, 0, cv2.BORDER_CONSTANT, value=(0, 0, 0))
                     webcam_bgra = cv2.cvtColor(webcam,cv2.COLOR_BGR2BGRA)
                     merged_frame = np.hstack((webcam_bgra,thermal_cam))
-                    cv2.putText(merged_frame, f"NEO sensor: {NEO_data} ppm", position, font, font_scale, color, thickness)
+                    cv2.putText(merged_frame, f"VOCs: {NEO_data} ppm", position, font, font_scale, color, thickness)
                     cv2.imshow('Video1',merged_frame)
                     #cv2.imshow("video1", webcam)
                     #cv2.imshow("video2", thermal_cam)
