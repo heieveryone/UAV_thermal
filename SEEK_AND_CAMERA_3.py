@@ -54,7 +54,7 @@ position = (700, 150)
 font = cv2.FONT_HERSHEY_SIMPLEX
 
 # 设置字体的大小和颜色
-font_scale = 2
+font_scale = 3
 color = (0, 255, 0)
 
 # 设置字体的粗细
