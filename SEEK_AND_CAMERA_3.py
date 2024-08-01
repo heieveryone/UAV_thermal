@@ -47,9 +47,9 @@ writer = WriteGear(
 
 
 
-ser = serial.Serial('COM4', 115200, timeout= 1)
+ser = serial.Serial('COM5', 115200, timeout= 1)
 
-position = (700, 150)
+position = (300, 75)
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -58,7 +58,7 @@ font_scale = 3
 color = (0, 255, 0)
 
 # 设置字体的粗细
-thickness = 2
+thickness = 3
 
 
 class Renderer:
